@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ServiceDescription"
+                  targetNamespace="urn:Service"
+                  xmlns:tns="urn:Service"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- ###DEFINE MESSAGES### begin -->
+    <wsdl:message name="testRequest">
+        <wsdl:part name="param" type="tx:string"/>
+    </wsdl:message>
+    <wsdl:message name="testResponse">
+        <wsdl:part name="result" type="xs:string"/>
+    </wsdl:message>
+    <!-- ###DEFINE MESSAGES### end -->
+
+    <!-- ###DEFINE MESSAGE PORT### begin -->
+    <wsdl:portType name="testPort">
+        <wsdl:operation name="test">
+            <wsdl:input message="tns:testRequest" />
+            <wsdl:output message="tns:testResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <!-- ###DEFINE MESSAGE PORT### end -->
+
+    <!-- ###BIND SERVICE### begin -->
+    <wsdl:binding name="testBinding" type="tns:testPort">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="test">
+            <soap:operation soapAction="urn:testAction"/>
+            <wsdl:input>
+                <soap:body use="encoded" namespace="urn:testAction" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="encoded" namespace="urn:testAction" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <!-- ###BIND SERVICE### end -->
+
+    <!-- ###DEFINE SERVICE### begin -->
+    <wsdl:service name="testService">
+        <wsdl:port name="testPort" binding="tns:testBinding">
+            <soap:address location="http://soap.localhost/index.php" />
+        </wsdl:port>
+    </wsdl:service>
+    <!-- ###DEFINE SERVICE### begin -->
+</wsdl:definitions>
