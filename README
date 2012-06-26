@@ -1,0 +1,110 @@
+########################################################################
+#                          ROUTER PATTERN                              #
+########################################################################
+
+This is just one of the way how you can organize your protects.
+
+# PREFACE
+
+The whole Application, in most cases, is a set of modules which interact
+between each other. Module can be independent unit or tights to other modules
+in the Application. Sometimes there is a necessity to communicate with third
+party library or application to perform some actions.
+
+Generally speaking :
+    "The Application is the set of modules (units) which communicate between
+     each other to accomplish the final task."
+
+There are few Problems in this structure which can be expressed in questions :
+
+ * How to organize communication between modules?
+ * How to make modules independent from each other?
+ * How to minimize module refactoring?
+
+And Router Pattern is designed to actually gives the answers on these
+questions.
+
+# INTRODUCTION
+
+The very important part of each system is "communication" between its
+components. And each component should be as much independent from others
+as it possible.
+
+There are few reasons why independence is so important :
+ * Security    - if one component is broken, the impact on the whole
+                 system should be minimized;
+ * Refactoring - if modules tight to each other close enough, the small
+                 change in one module can cause additional changes to
+                 related modules;
+ * Flexibility - the cost of individual module replacement should be
+                 minimized.
+
+Lets show a simple, typical example of the relation between two modules.
+
+========================================================================
+=           MODULE A                 |             MODULE HELLO        =
+========================================================================
+| require ('MODULE_HELLO.php');      |  class ModuleHello {            |
+|                                    |      function sayHello(){       |
+| $greeting = new ModuleHello;       |          return 'Hello World!'; |
+| echo $greeting->sayHello();        |      }                          |
+|                                    |  }                              |
+========================================================================
+
+Potentially there are few problems in this structure:
+
+ * MODULE A should know the location of MODULE HELLO. Any changes to
+   "HELLO" location cause immediate change in "A";
+ * If later, result from "HELLO" should go through some decoration
+   process, this is going to affect "A" or "HELLO" source code;
+ * If for some reason wording "Hello World!" should be replaces with
+   "Hi World!" there are two possible ways to do that, change the "HELLO"
+   implementation or introduce alternative "HELLO" with new wording. In
+   both case scenario this will affect "A" or "HELLO" source code.
+ * What if one installation of the Application should say "Hello World!"
+   and other "Hi World!"?
+
+Some of these issues can be solved with very strict source code structure.
+Others with autoload functions.
+
+But what if the entire Application is a combination of few systems? And some
+of them can be accessed with autoload function others should be called as
+Web Service.
+
+In this scenario modules act as independent units and communication between
+them should be defined in flexible and easy-to-change way.
+
+# ROUTER PATTERN IDEA
+
+The Idea of this Pattern is quite simple :
+
+  a. The entire Application (System) is a set of Modules;
+  b. Each Module is completely independent and may have its own structure;
+  c. Each Module has the bootstrap which initializes the Module and returns
+     the instance of "Controller";
+  d. Each Module has the "Controller" which is entry point for communication
+     with the Module;
+  e. In case of Web Service (currently ONLY SOAP supported) the entry point
+     is WSDL file;
+  f. There is the one centralized "Router" which handles the communication
+     between modules;
+  g. There may be a configuration file with defined list of Module Alias and
+     entry point to them.
+
+# INSTALLATION
+
+ ===================================================================
+ ** You may perform the installation without Virtual Hosts setup. **
+ ** Installation process assumes that setup is performed on local **
+ ===================================================================
+
+ 1. Setup Virtual Host router.localhost;
+ 2. Move all files from Repository to defined path;
+ 3. Setup Virtual Host soap.localhost. If different host is defined,
+    make sure that service URL is replaced in :
+	  - modules/Service/index.php;
+	  - modules/Service/service.wsdl;
+          - config.php
+ 4. Copy content of modules/Service to the new defined host;
+ 5. Execute the Application :
+        http://router.localhost
